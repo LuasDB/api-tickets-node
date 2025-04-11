@@ -10,6 +10,7 @@ const AppRouter = (app,io) => {
   router.use('/auth', authRouter)
   //Agregar las rutas necesarias
 
+
 }
 
 export default AppRouter

@@ -6,6 +6,7 @@ export default {
   mongoURI:process.env.MONGO_URI,
   database:process.env.MONGO_DATABASE,
   jwtSecret:process.env.JWT_SECRET,
+  serviceEmailSupport:process.env.SERVICE_EMAIL_SUPPORT,
   emailSupport:process.env.EMAIL_SUPPORT,
   passSupport:process.env.PASS_SUPPORT,
   urlApp:process.env.URL_APP

@@ -5,6 +5,7 @@ import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import config from '../config.js'
 import { restablecerPass } from '../templates/restablecerPass.js'
+import {sendMail} from '../utils/sendMail.js'
 
 class Auth{
   constructor(){
@@ -22,8 +23,8 @@ class Auth{
   async create(data){
 
     try {
-      const { name, email, password } = data
-      if(!name || !email || !password){
+      const { name, email } = data
+      if(!name || !email ){
         throw Boom.badData('Todos los datos son necesarios')
       }
 
@@ -33,10 +34,41 @@ class Auth{
         throw Boom.conflict(`El usuario con correo ${email} ya existe`);
       }
 
-      const hashedPassword = await bcrypt.hash(password,10);
-      data.password = hashedPassword
 
-      const result = await db.collection('users').insertOne(data)
+      const result = await db.collection('users').insertOne({
+        name, email,
+        role:'client',
+        password:null,
+        serviceTime:{
+          total:0,
+          used:0,
+          remaining:0,
+          history:[]
+        }
+      })
+
+      if(result.insertedId){
+        const resetToken = jwt.sign(
+          { userId: result.insertedId,email },
+          this.jwtSecret,
+          { expiresIn: '1h' }
+        );
+
+        const resetLink = `${config.urlApp}/reset-password?token=${resetToken}`
+
+        sendMail({
+          to:email,
+          subject:'Creación de contraseña',
+          html:`
+          <h2>Hola ${name}</h2>
+        <p>Bienvenido al sistema de soporte técnico.</p>
+        <p>Haz clic en el siguiente botón para establecer tu contraseña:</p>
+        <a href="${resetLink}" style="padding: 10px 20px; background: #0d6efd; color: white; text-decoration: none; border-radius: 5px;">Restablecer contraseña</a>
+        <p>Este enlace expirará en 1 hora.</p>
+      `
+
+        })
+      }
 
       return {id:result.insertedId,email}
     } catch (error) {
