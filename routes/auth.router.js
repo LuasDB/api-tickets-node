@@ -19,6 +19,7 @@ router.post('/register',async(req, res, next)=>{
 })
 
 router.post('/login',async(req, res, next)=>{
+  console.log('Entrando a login')
   try {
     const token = await auth.login(req.body)
     if(token){

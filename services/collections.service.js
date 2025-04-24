@@ -109,7 +109,7 @@ class Collection{
 
   async updateOneById(collection,id,newData){
     try {
-
+      console.log('Peticion reibida:',collection,id,newData)
       if(!ObjectId.isValid(id)){
         throw Boom.badRequest('El ID proporcionado no es válido')
       }

@@ -1,39 +1,28 @@
-# api-machote-node
-Machote inicial para crear API
+# api-tickets-node
+API tickets soporte técnico
 
-# Iniciar npm
-```bash
-npm init -y
-```
+
 # Instalación de dependencias
 
-npm init -y
-
-```javascript
-console.log('Hello, World!');
+```
+npm install
 
 ```
 
-[Visita GitHub](https://github.com)
+# Crea el archivo de variables de entorno con las siguientes variables
 
+```javascript
+PORT= puerto donde va a correr el servidor
+SERVER= Donde se alojara tu API
+URL_APP= URL desde donde se haran las consultas
+MONGO_URI= URI de base de datos de MongoDB
+MONGO_DATABASE= Nombre de la base de datos que se va a crear
 
-![Descripción de la imagen](ruta/a/la/imagen.png)
+JWT_SECRET= palabra secreta para Jason Web Token
 
+EMAIL_SUPPORT= correo para envio de mensajes automaticos
+PASS_SUPPORT= Contraseña del correo 
+SERVICE_EMAIL_SUPPORT= Servicio a utilizar(gmail, outlook,etc)
 
-| Comando | Descripción       |
-|---------|-------------------|
-| `npm install` | Instala dependencias |
-
-```bash
-# Clona el repositorio
-git clone https://github.com/usuario/proyecto.git
-
-# Navega al directorio del proyecto
-cd proyecto
-
-# Instala las dependencias
-npm install
-
-# Inicia el servidor de desarrollo
-npm start
+```
 

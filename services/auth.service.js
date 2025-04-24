@@ -1,5 +1,6 @@
 import { db } from './../db/mongoClient.js'
 import nodemailer from 'nodemailer'
+import path from 'path'
 import Boom from '@hapi/boom'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
@@ -23,7 +24,7 @@ class Auth{
   async create(data){
 
     try {
-      const { name, email } = data
+      const { name, email, company,role} = data
       if(!name || !email ){
         throw Boom.badData('Todos los datos son necesarios')
       }
@@ -34,10 +35,10 @@ class Auth{
         throw Boom.conflict(`El usuario con correo ${email} ya existe`);
       }
 
-
+      console.log('Estamos entrando')
       const result = await db.collection('users').insertOne({
-        name, email,
-        role:'client',
+        name, email,company,
+        role,
         password:null,
         serviceTime:{
           total:0,
@@ -46,6 +47,7 @@ class Auth{
           history:[]
         }
       })
+
 
       if(result.insertedId){
         const resetToken = jwt.sign(
@@ -59,13 +61,13 @@ class Auth{
         sendMail({
           to:email,
           subject:'Creación de contraseña',
-          html:`
-          <h2>Hola ${name}</h2>
-        <p>Bienvenido al sistema de soporte técnico.</p>
-        <p>Haz clic en el siguiente botón para establecer tu contraseña:</p>
-        <a href="${resetLink}" style="padding: 10px 20px; background: #0d6efd; color: white; text-decoration: none; border-radius: 5px;">Restablecer contraseña</a>
-        <p>Este enlace expirará en 1 hora.</p>
-      `
+          data:{name,company,resetLink},
+          templateEmail:'register',
+          attachments:[{
+            filename:'logo_omegasys',
+            path:path.join('emails/logo_omegasys.png'),
+            cid:'logo_omegasys'
+          }]
 
         })
       }
@@ -92,11 +94,12 @@ class Auth{
 
       const isPasswordValid = await bcrypt.compare(password,user.password)
 
+
       if(!isPasswordValid){
         throw Boom.unauthorized('Email o passwor incorrectos')
       }
 
-      const payload = { userId:user._id, email:user.email, nombre:user.name}
+      const payload = { userId:user._id, email:user.email, nombre:user.name, role:user.role}
       const token = jwt.sign(payload,this.jwtSecret,{ expiresIn:this.jwtExpiration})
 
       return token
@@ -117,7 +120,7 @@ class Auth{
       const resetToken = jwt.sign(
         { userId: user._id,email:user.email },
         this.jwtSecret,
-        { expiresIn: '1min' }
+        { expiresIn: '15min' }
       );
 
       const resetLink = `${config.urlApp}/reset-password?token=${resetToken}`
@@ -172,12 +175,10 @@ class Auth{
   async resetPassword(token, newPassword){
     try {
       const decoded = jwt.verify(token,this.jwtSecret)
-
-      const user = this.getUserByEmail(decoded.email)
-
+      const user =await this.getUserByEmail(decoded.email)
       const hashedPassword = await bcrypt.hash(newPassword,10)
 
-      await db.collection('users').updateOne(
+      const result = await db.collection('users').updateOne(
         {_id:user._id},
         {$set:{password:hashedPassword}}
       )
