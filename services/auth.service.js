@@ -44,6 +44,8 @@ class Auth{
           total:0,
           used:0,
           remaining:0,
+          tickets:0,
+          activeTickets:0,
           history:[]
         }
       })
@@ -68,7 +70,6 @@ class Auth{
             path:path.join('emails/logo_omegasys.png'),
             cid:'logo_omegasys'
           }]
-
         })
       }
 
@@ -99,7 +100,7 @@ class Auth{
         throw Boom.unauthorized('Email o passwor incorrectos')
       }
 
-      const payload = { userId:user._id, email:user.email, nombre:user.name, role:user.role}
+      const payload = { userId:user._id, email:user.email, nombre:user.name, role:user.role,serviceTime:user.serviceTime,company:user.company}
       const token = jwt.sign(payload,this.jwtSecret,{ expiresIn:this.jwtExpiration})
 
       return token
@@ -125,27 +126,18 @@ class Auth{
 
       const resetLink = `${config.urlApp}/reset-password?token=${resetToken}`
 
-      const mailOptions = {
-        from:config.emailSupport,
-        to:email,
-        subject:'Restablecer contraseña',
-        html:restablecerPass(resetLink,config.server)
-      }
-
-
-      await this.mailTransporter.sendMail(mailOptions,(error,info)=>{
-        console.log('enviando correo...')
-
-        if(error){
-          console.error('Error al enviar el correo ',error)
-
-        }else{
-          console.log('Correo enviado:', info.response)
-        }
+      sendMail({
+        to:user.email,
+        subject:'Restablecimiento de contraseña',
+        data:{name:user.name,resetLink},
+        templateEmail:'restartPassword',
+        attachments:[{
+          filename:'logo_omegasys',
+          path:path.join('emails/logo_omegasys.png'),
+          cid:'logo_omegasys'
+        }]
       })
-
-      return 'Se ha enviado un enlace de restablecimiento de contraseña a tu correo.'
-
+      return 'Se envío correo'
 
     } catch (error) {
       if(Boom.isBoom(error)){

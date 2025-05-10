@@ -11,7 +11,7 @@ import { readFile } from 'fs/promises'
 const data = await readFile('./api_documentation.json', 'utf-8')
 const swaggerDoc = JSON.parse(data)
 
-const port = 3000 || process.env.PORT
+const port =  process.env.PORT || 3000
 //Express
 const app = express()
 app.use(express.urlencoded({ extended: true }))
@@ -67,7 +67,7 @@ const startServer = async ()=>{
 
     app.use('/uploads', express.static('uploads'))
 
-    httpServer.listen(3000,()=>{
+    httpServer.listen(port,'0.0.0.0',()=>{
       console.log(`Servidor iniciado en puerto :${port}`)
     })
 

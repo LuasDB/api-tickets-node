@@ -58,8 +58,6 @@ const collectionsRouter = (io)=>{
     }
   })
 
-
-
   router.post('/create/:collection',async(req,res,next)=>{
 
     try {
@@ -127,6 +125,7 @@ const collectionsRouter = (io)=>{
       next(error)
     }
   })
+
 
   router.delete('/delete-one/:collection/:id',async(req,res,next)=>{
     try {
