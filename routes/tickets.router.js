@@ -95,6 +95,23 @@ const ticketsRouter = (io)=>{
       next(error)
     }
   })
+  router.post('/finished-ticket',async(req,res,next)=>{
+    try {
+
+      const finishedTicket = await tickets.finishedTicket(req.body)
+
+      io.emit('finished_ticket',finishedTicket)
+
+
+      res.status(200).json({
+        success:true,
+        message:'Se ha finalizado el servicio',
+
+      })
+    } catch (error) {
+      next(error)
+    }
+  })
   router.patch('/add-message/:id',async(req,res,next)=>{
     try {
       const { id } = req.params

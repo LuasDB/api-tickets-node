@@ -121,11 +121,10 @@ export default class Tickets{
   }
   async addHours(data){
     try {
-
+      console.log('Solcitud de horas',data)
       const userId = data.request.user.userId
-      console.log('ID',userId)
-      console.log('Solicitud',data)
-
+      const requetsId = data.request._id
+      delete data.request
 
       const result = await db.collection('users').updateOne(
         {_id:new ObjectId(userId)},
@@ -135,6 +134,14 @@ export default class Tickets{
         }
         }
       )
+
+      if(result.modifiedCount === 1){
+        await db.collection('requestHours').updateOne(
+          {_id: new ObjectId(requetsId)},{$set:{
+            ...data,status:'close'
+          }}
+        )
+      }
 
 
 
@@ -147,5 +154,41 @@ export default class Tickets{
         throw Boom.serverUnavailable('No se puede completar la petición, intentalo mas tarde')
       }
     }
+  }
+
+  async finishedTicket(data){
+    console.log('lo que llega:')
+    console.log(data)
+    const { ticketId,userId,consumedHours,resume,finishedAt } = data
+    try {
+
+      const updateTicket = await db.collection('tickets').updateOne(
+        {_id: new ObjectId(ticketId)},
+        {$set:{
+          status:'close',consumedHours,resume,finishedAt
+        }}
+      )
+
+      const updateUser = await db.collection('users').updateOne(
+        {_id: new ObjectId(userId)},
+        {$inc:{
+          'serviceTime.activeTickets':-1,
+          'serviceTime.used':consumedHours,
+          'serviceTime.remaining':-consumedHours
+        }}
+      )
+      return {status:'close',consumedHours,resume,finishedAt,ticketId }
+    } catch (error) {
+      if(Boom.isBoom(error)){
+        throw error
+      }else{
+        throw Boom.serverUnavailable('No se puede completar la petición, intentalo mas tarde')
+      }
+    }
+
+
+
+
+
   }
 }
