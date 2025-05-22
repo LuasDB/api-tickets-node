@@ -19,7 +19,8 @@ export default class Tickets{
         { _id:new ObjectId(newData.user.userId)},
         { $inc:{
                 'serviceTime.tickets':1,
-                'serviceTime.activeTickets':1
+                'serviceTime.activeTickets':1,
+
               }
         }
       )
@@ -124,14 +125,18 @@ export default class Tickets{
       console.log('Solcitud de horas',data)
       const userId = data.request.user.userId
       const requetsId = data.request._id
-      delete data.request
+
 
       const result = await db.collection('users').updateOne(
         {_id:new ObjectId(userId)},
-        {$inc:{
+        {
+          $inc:{
           'serviceTime.total':data.hours,
           'serviceTime.remaining':data.hours
-        }
+          },
+          $push:{
+          'serviceTime.history':data.request
+          }
         }
       )
 
@@ -174,7 +179,8 @@ export default class Tickets{
         {$inc:{
           'serviceTime.activeTickets':-1,
           'serviceTime.used':consumedHours,
-          'serviceTime.remaining':-consumedHours
+          'serviceTime.remaining':-consumedHours,
+          'serviceTime.resolvedTickets':1
         }}
       )
       return {status:'close',consumedHours,resume,finishedAt,ticketId }

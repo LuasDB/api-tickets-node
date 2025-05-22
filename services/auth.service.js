@@ -24,7 +24,7 @@ class Auth{
   async create(data){
 
     try {
-      const { name, email, company,role} = data
+      const { name, email, company, role, type} = data
       if(!name || !email ){
         throw Boom.badData('Todos los datos son necesarios')
       }
@@ -35,10 +35,9 @@ class Auth{
         throw Boom.conflict(`El usuario con correo ${email} ya existe`);
       }
 
-      console.log('Estamos entrando')
       const result = await db.collection('users').insertOne({
         name, email,company,
-        role,
+        role,type,
         password:null,
         serviceTime:{
           total:0,
@@ -46,6 +45,7 @@ class Auth{
           remaining:0,
           tickets:0,
           activeTickets:0,
+          resolvedTickets:0,
           history:[]
         }
       })
