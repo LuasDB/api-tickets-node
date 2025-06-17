@@ -90,6 +90,22 @@ export default class Tickets{
     }
   }
 
+  async getClients(){
+    try {
+      const clients = await db.collection('users').find(
+        {role:'client'}
+      ).toArray()
+
+      return clients
+    } catch (error) {
+      if(Boom.isBoom(error)){
+        throw error
+      }else{
+        throw Boom.serverUnavailable('No se puede descargar informacion por ahora')
+      }
+    }
+  }
+
   async addMessage(id,newMessage){
     try {
       const result = await db.collection('tickets').updateOne(

@@ -45,6 +45,18 @@ const ticketsRouter = (io)=>{
     }
   })
 
+  router.get('/get-clients/all',async(req,res,next)=>{
+    try {
+      const getActiveTickets = await tickets.getClients()
+      res.status(200).json({
+        success:true,
+        data:getActiveTickets
+      })
+    } catch (error) {
+     next(error)
+    }
+  })
+
 
   router.post('/',async(req,res,next)=>{
     try {
