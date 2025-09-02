@@ -18,7 +18,6 @@ const ticketsRouter = (io)=>{
      next(error)
     }
   })
-
   router.get('/:idUser',async(req,res,next)=>{
     try {
       const { idUser } = req.params
@@ -31,7 +30,6 @@ const ticketsRouter = (io)=>{
       next(error)
     }
   })
-
   router.get('/requests/getall',async(req,res,next)=>{
     try {
       const getRequests = await tickets.getRequests()
@@ -44,7 +42,6 @@ const ticketsRouter = (io)=>{
       next(error)
     }
   })
-
   router.get('/get-clients/all',async(req,res,next)=>{
     try {
       const getActiveTickets = await tickets.getClients()
@@ -56,8 +53,22 @@ const ticketsRouter = (io)=>{
      next(error)
     }
   })
-
-
+  router.get('/tickets/pagination',async(req,res,next)=>{
+    try {
+      const { page,limit,search='',closed} = req.query
+      const getPagination = await tickets.getByPagination({
+        page:parseInt(page),
+        limit:parseInt(limit),
+        search,closed
+      })
+      res.status(200).json({
+        success:true,
+        data:getPagination
+      })
+    } catch (error) {
+     next(error)
+    }
+  })
   router.post('/',async(req,res,next)=>{
     try {
       const { body } = req
@@ -74,7 +85,6 @@ const ticketsRouter = (io)=>{
       next(error)
     }
   })
-
   router.post('/service-hours-purchases',async(req,res,next)=>{
     try {
       const tickets = new Tickets()

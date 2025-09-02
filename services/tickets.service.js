@@ -213,4 +213,40 @@ export default class Tickets{
 
 
   }
+
+  async getByPagination({page,limit,search,closed}){
+    try {
+
+    const skip = (page - 1) * limit
+    const filter = search ? {
+      $or:[
+        {company:{$regex:search, $options:'i'}},
+        {title:{$regex:search, $options:'i'}}
+      ]
+    } : {}
+
+    if(closed){
+      filter['status']='close'
+    }
+
+    const collection = await db.collection('tickets')
+
+    const total = await collection.countDocuments(filter)
+
+    const tickets = await collection
+    .find(filter)
+    .skip(skip)
+    .limit(limit)
+    .sort({createdAt:1},{company:1})
+    .toArray()
+
+    return {tickets,total}
+
+    } catch (error) {
+      if(Boom.isBoom(error)){
+        throw error
+      }
+      throw Boom.badRequest('No se pudo obtener la información')
+    }
+  }
 }

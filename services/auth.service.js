@@ -86,8 +86,10 @@ class Auth{
 
   async login(data){
     try {
-      const { password,email } = data
-      const user = await db.collection('users').findOne({email})
+      const { password, email } = data
+
+      const user = await db.collection('users').findOne({email:email})
+      console.log('USER',user)
 
       if(!user){
         throw Boom.unauthorized('Email o passwor incorrectos')
