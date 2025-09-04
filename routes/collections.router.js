@@ -41,6 +41,21 @@ const collectionsRouter = (io)=>{
     }
   })
 
+    router.get('/:collection/system/',async(req,res,next)=>{
+    try{
+      const { collection} = req.params
+
+      const serach = await collections.getUsersSystem(collection)
+      res.status(200).json({
+        success:true,
+        message:'Documentos encontrados',
+        data:serach
+      })
+    }catch(error){
+      next(error)
+    }
+  })
+
   router.get('/:collection/:id',async(req,res,next)=>{
     try {
       const { collection, id } = req.params

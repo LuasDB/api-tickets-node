@@ -38,6 +38,19 @@ class Collection{
     }
   }
 
+  async getUsersSystem(collection){
+    try {
+      const getUsers = await db.collection(collection).find({role:{$ne:'client'}}).toArray()
+      console.log(getUsers)
+      return getUsers
+    } catch (error) {
+      if (Boom.isBoom(error)) {
+        throw error
+      }
+      throw Boom.badImplementation('Error al obtener la colección', error);
+    }
+  }
+
   async search(collection,q,page, limit){
 
     try {
